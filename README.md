@@ -1,4 +1,4 @@
-datenbanksysteme
+Datenbanksysteme
 ================
 
-Bundestagswahl
+System für die Bundestagswagl
