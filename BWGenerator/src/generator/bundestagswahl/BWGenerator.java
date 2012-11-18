@@ -1,10 +1,7 @@
 package generator.bundestagswahl;
 
-import java.io.File;
-import java.security.CodeSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,49 +26,61 @@ public class BWGenerator {
 		ResultSet rs = null;
 		try {
 			conn = DriverManager.getConnection(url);
-
 			st = conn.createStatement();
 
-			PreparedStatement pst = conn
-					.prepareStatement("INSERT INTO \"Direktkandidat\" values('0','ungültig','ungültig',0);");
-			// pst.executeUpdate();
-			//
-			// int foovalue = 1;
-			// pst = conn
-			// .prepareStatement("DELETE FROM \"Bundesland\" WHERE \"Population\" = ?");
-			// pst.setInt(1, foovalue);
-			// int rowsDeleted = pst.executeUpdate();
-
-			//
-			// rs =
-			// st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
-			//
-			// while (rs.next()) {
-			// System.out.print("");
-			// System.out.println(rs.getString(1));
-			// }
-
-			String propertiesFilePath = "client.properties";
-			File propertiesFile = new File(propertiesFilePath);
-
-			if (!propertiesFile.exists()) {
-				try {
-					CodeSource codeSource = BWGenerator.class
-							.getProtectionDomain().getCodeSource();
-					File jarFile = new File(codeSource.getLocation().toURI()
-							.getPath());
-					String jarDir = jarFile.getParentFile().getPath();
-					propertiesFile = new File(jarDir
-							+ System.getProperty("file.separator")
-							+ propertiesFilePath);
-				} catch (Exception ex) {
-				}
+			// Bundesland
+			try {
+				st.executeUpdate("CREATE TABLE \"Bundesland\"( \"Name\" text NOT NULL, CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("ALTER TABLE \"Bundesland\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 
-			System.out.println(propertiesFile.getParent());
+			// Wahlkreis
+			try {
+				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("ALTER TABLE \"Wahlkreis\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-			rs = st.executeQuery("COPY \"Direktkandidat\" FROM 'C:\\Program Files\\PostgreSQL\\9.2\\Dateien\\csv\\wahlbewerber2009.csv' WITH  DELIMITER  ';' CSV; ");
-			rs.close();
+			// Direktkandidat
+			try {
+				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, CONSTRAINT \"Kandidatennummer\" PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
+				st.executeUpdate("ALTER TABLE \"Direktkandidat\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				st.executeUpdate("COPY \"Direktkandidat\" FROM 'C:\\Program Files\\PostgreSQL\\9.2\\Dateien\\csv\\wahlbewerber2009.csv' WITH  DELIMITER  ';' CSV; ");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			// Erststimmen
+			try {
+				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, CONSTRAINT \"Nummer\" PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("ALTER TABLE \"Erststimmen\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			// Zweitstimmen
+			try {
+				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, CONSTRAINT \"Nummer\" PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("ALTER TABLE \"Zweitstimmen\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			// Partei
+			try {
+				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("ALTER TABLE \"Partei\" OWNER TO postgres;");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
 			st.close();
 
 		} catch (SQLException e) {
