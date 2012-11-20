@@ -20,7 +20,7 @@ public class BWGenerator {
 			e.printStackTrace();
 		}
 		// Datenbankverbindung aufbauen
-		String url = "jdbc:postgresql://localhost/Bundestagswahl?user=postgres&password=1234";
+		String url = "jdbc:postgresql://localhost/Bundestagswahl?user=user&password=1234";
 		Connection conn;
 		Statement st;
 		ResultSet rs = null;
@@ -30,7 +30,7 @@ public class BWGenerator {
 
 			// Bundesland
 			try {
-				st.executeUpdate("CREATE TABLE \"Bundesland\"( \"Name\" text NOT NULL, CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Bundesland\"( \"Name\" text NOT NULL,  PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
 				st.executeUpdate("ALTER TABLE \"Bundesland\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -38,7 +38,7 @@ public class BWGenerator {
 
 			// Wahlkreis
 			try {
-				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
 				st.executeUpdate("ALTER TABLE \"Wahlkreis\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -46,7 +46,7 @@ public class BWGenerator {
 
 			// Direktkandidat
 			try {
-				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, CONSTRAINT \"Kandidatennummer\" PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
+				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
 				st.executeUpdate("ALTER TABLE \"Direktkandidat\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -59,7 +59,7 @@ public class BWGenerator {
 
 			// Erststimmen
 			try {
-				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, CONSTRAINT \"Nummer\" PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
 				st.executeUpdate("ALTER TABLE \"Erststimmen\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -67,7 +67,7 @@ public class BWGenerator {
 
 			// Zweitstimmen
 			try {
-				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, CONSTRAINT \"Nummer\" PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
 				st.executeUpdate("ALTER TABLE \"Zweitstimmen\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -75,7 +75,7 @@ public class BWGenerator {
 
 			// Partei
 			try {
-				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , CONSTRAINT \"Name\" PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
 				st.executeUpdate("ALTER TABLE \"Partei\" OWNER TO postgres;");
 			} catch (SQLException e) {
 				e.printStackTrace();
