@@ -42,7 +42,7 @@ public class BundestagswahlServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		// Datenbankverbindung aufbauen
-		String url = "jdbc:postgresql://localhost/Bundestagswahl?user=postgres&password=1234";
+		String url = "jdbc:postgresql://localhost/Bundestagswahl?user=user&password=1234";
 		Connection conn;
 		Statement st;
 		ResultSet rs = null;
