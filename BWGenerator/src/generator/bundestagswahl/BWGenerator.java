@@ -39,7 +39,7 @@ public class BWGenerator {
 			// Wahlkreis
 			try {
 				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Wahlkreis\" OWNER TO postgres;");
+				st.executeUpdate("ALTER TABLE \"Wahlkreis\" OWNER TO user;");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -47,7 +47,7 @@ public class BWGenerator {
 			// Direktkandidat
 			try {
 				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
-				st.executeUpdate("ALTER TABLE \"Direktkandidat\" OWNER TO postgres;");
+				st.executeUpdate("ALTER TABLE \"Direktkandidat\" OWNER TO user;");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -60,7 +60,7 @@ public class BWGenerator {
 			// Erststimmen
 			try {
 				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Erststimmen\" OWNER TO postgres;");
+				st.executeUpdate("ALTER TABLE \"Erststimmen\" OWNER TO user;");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -68,7 +68,7 @@ public class BWGenerator {
 			// Zweitstimmen
 			try {
 				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Zweitstimmen\" OWNER TO postgres;");
+				st.executeUpdate("ALTER TABLE \"Zweitstimmen\" OWNER TO user;");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -76,7 +76,7 @@ public class BWGenerator {
 			// Partei
 			try {
 				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Partei\" OWNER TO postgres;");
+				st.executeUpdate("ALTER TABLE \"Partei\" OWNER TO user;");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
