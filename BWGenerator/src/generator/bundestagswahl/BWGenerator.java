@@ -28,57 +28,11 @@ public class BWGenerator {
 			conn = DriverManager.getConnection(url);
 			st = conn.createStatement();
 
-			// Bundesland
-			try {
-				st.executeUpdate("CREATE TABLE \"Bundesland\"( \"Name\" text NOT NULL,  PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Bundesland\" OWNER TO postgres;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			rs = st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
 
-			// Wahlkreis
-			try {
-				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Wahlkreis\" OWNER TO user;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			while (rs.next()) {
 
-			// Direktkandidat
-			try {
-				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
-				st.executeUpdate("ALTER TABLE \"Direktkandidat\" OWNER TO user;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				st.executeUpdate("COPY \"Direktkandidat\" FROM 'C:\\Program Files\\PostgreSQL\\9.2\\Dateien\\csv\\wahlbewerber2009.csv' WITH  DELIMITER  ';' CSV; ");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			// Erststimmen
-			try {
-				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Erststimmen\" OWNER TO user;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			// Zweitstimmen
-			try {
-				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Zweitstimmen\" OWNER TO user;");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			// Partei
-			try {
-				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
-				st.executeUpdate("ALTER TABLE \"Partei\" OWNER TO user;");
-			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println(rs.getString(1));
 			}
 
 			st.close();
