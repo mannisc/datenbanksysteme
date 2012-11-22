@@ -48,7 +48,8 @@ public class BWSetupDatabse {
 				e.printStackTrace();
 			}
 			try {
-				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Nummer\" integer , \"Name\" text , \"Population\" integer , \"Bundesland\" text  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+
+				st.executeUpdate("CREATE TABLE \"Wahlkreis\"( \"Jahr\" integer , \"Nummer\" integer, \"Name\" text, \"Population\" integer, \"Bundesland\" text , PRIMARY KEY (\"Jahr\",\"Nummer\"))WITH (OIDS=FALSE);");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -60,7 +61,7 @@ public class BWSetupDatabse {
 				e.printStackTrace();
 			}
 			try {
-				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Kandidatennummer\" integer NOT NULL,\"Name\" text, \"Partei\" text,\"Jahrgang\" integer, \"Jahr\" integer, PRIMARY KEY (\"Kandidatennummer\",\"Jahr\")) WITH ( OIDS=FALSE );");
+				st.executeUpdate("CREATE TABLE \"Direktkandidat\"(\"Jahr\" integer, \"Kandidatennummer\" integer, \"Name\" text, \"Partei\" text, PRIMARY KEY (\"Jahr\",\"Kandidatennummer\")) WITH ( OIDS=FALSE );");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -70,30 +71,7 @@ public class BWSetupDatabse {
 			// e.printStackTrace();
 			// }
 
-			// Erststimmen
-			try {
-				st.executeUpdate("DROP TABLE \"Erststimmen\";");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			// Zweitstimmen
-			try {
-				st.executeUpdate("DROP TABLE \"Zweitstimmen\";");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
+			//
 			// Partei
 			try {
 				st.executeUpdate("DROP TABLE \"Partei\";");
@@ -101,10 +79,47 @@ public class BWSetupDatabse {
 				e.printStackTrace();
 			}
 			try {
-				st.executeUpdate("CREATE TABLE \"Partei\"( \"Name\" text , \"Mitglieder\" integer  ,\"Jahr\" integer , PRIMARY KEY (\"Name\"))WITH (OIDS=FALSE);");
+				st.executeUpdate("CREATE TABLE \"Partei\"( \"Jahr\" integer, \"Name\" text , \"Mitglieder\" integer  , PRIMARY KEY (\"Jahr\",\"Name\"))WITH (OIDS=FALSE);");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+
+			// Stimmen
+			try {
+				st.executeUpdate("DROP TABLE \"Stimme\";");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+
+				st.executeUpdate("CREATE TABLE \"Stimme\"( \"Jahr\" integer, \"Stimmzettelnummer\" integer, \"Kandidatennummer\" integer, \"WahlkreisErststimme\" integer, \"Partei\" text, \"Bundesland\" text, PRIMARY KEY (\"Jahr\",\"Stimmzettelnummer\"))WITH (OIDS=FALSE);");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			// Erststimmen
+			// try {
+			// st.executeUpdate("DROP TABLE \"Erststimmen\";");
+			// } catch (SQLException e) {
+			// e.printStackTrace();
+			// }
+			// try {
+			// st.executeUpdate("CREATE TABLE \"Erststimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Kandidatennummer\" integer, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+			// } catch (SQLException e) {
+			// e.printStackTrace();
+			// }
+			//
+			// // Zweitstimmen
+			// try {
+			// st.executeUpdate("DROP TABLE \"Zweitstimmen\";");
+			// } catch (SQLException e) {
+			// e.printStackTrace();
+			// }
+			// try {
+			// st.executeUpdate("CREATE TABLE \"Zweitstimmen\"( \"Nummer\" integer ,\"Quantität\" integer , \"Partei\" text, \"Wahlkreis\" integer, \"Jahr\" integer, PRIMARY KEY (\"Nummer\"))WITH (OIDS=FALSE);");
+			// } catch (SQLException e) {
+			// e.printStackTrace();
+			// }
 
 			st.close();
 
@@ -115,5 +130,4 @@ public class BWSetupDatabse {
 		System.out.print(" ");
 
 	}
-
 }
