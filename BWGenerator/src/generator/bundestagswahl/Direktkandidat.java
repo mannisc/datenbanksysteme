@@ -1,5 +1,6 @@
 package generator.bundestagswahl;
 
+
 public class Direktkandidat {
 	public String partei;
 	public int kandidatennummer;
@@ -20,4 +21,5 @@ public class Direktkandidat {
 		return this.partei + ",  " + kandidatennummer + ",  " + politiker
 				+ ",  " + this.wahlkreis;
 	}
+
 }

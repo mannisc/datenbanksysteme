@@ -6,8 +6,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -48,14 +51,13 @@ public class BWGenerator {
 					new FileReader("csv\\wahlbewerber2005.csv")), ';');
 
 			CSVReader readerErgebnis05 = new CSVReader(new BufferedReader(
-					new FileReader("csv\\kerg.csv")), ';');
+					new FileReader("csv\\wkumrechnung2009.csv")), ';');
 
 			CSVWriter writerStimmen05 = new CSVWriter(new FileWriter(
-					"csv\\wkumrechnung2009.csv"), ';');
+					"csv\\stimmen2005.csv"), ';');
 
 			String[] readLineErgebnis05;
 			String[] readLineWahlbewerber05;
-			String[] writeLine05; // = "first#second#third".split("#");
 
 			// Wahlbewerber.csv-------------------------------------------
 
@@ -102,49 +104,94 @@ public class BWGenerator {
 				}
 			}
 
-			Iterator itr = listenkandidat.iterator();
-			System.out.println("Set : ");
-			while (itr.hasNext())
-				System.out.println(itr.next());
-			System.out.println("------------");
+			// Ergebnisse in Tabelle schreiben
+
+			try {
+				conn = DriverManager.getConnection(url);
+				st = conn.createStatement();
+
+				Iterator itr = politiker.iterator();
+				while (itr.hasNext())
+					st.executeUpdate("INSERT INTO \"Politiker\" VALUES (\"2005\",\""
+							+ itr.next() + "\")");
+
+				itr = partei.iterator();
+				while (itr.hasNext())
+					st.executeUpdate("INSERT INTO \"Partei\" VALUES (\"2005\",\""
+							+ itr.next() + "\")");
+
+				st.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			// Iterator itr = listenkandidat.iterator();
+			// System.out.println("Set : ");
+			// while (itr.hasNext())
+			// System.out.println(itr.next());
+			// System.out.println("------------");
 
 			// WKUmrechnung.csv-------------------------------------------
 
 			// HashSet<Stimme> stimme = new HashSet<Stimme>();
 
-			int stimmzettelnummer = 1;
+			// Anfangszeilen überspringen und Header auslesen
 
-			// Einleseparameter
-			int columnWahlkreisNummer = 0; // Spalte der WahlkreisNummer ab 0
-			int columnParteienStart = 9; // Startspalte der Stimmen je Kandidat
-			int columnParteienStop = 22; // Endspalte der Stimmen je Kandidat
-			// writer.writeNext(writeLine);
+			readerErgebnis05.readNext();
+			readerErgebnis05.readNext();
+			readLineErgebnis05 = readerErgebnis05.readNext();
+			readerErgebnis05.readNext();
 
-			// Anfangszeilen überspringen
-			int skipLinesWKUmrechnung = 4; // zu überspringende Zeilen am Anfang
-			for (int i = 1; i <= skipLinesWKUmrechnung; i++) {
-				readerErgebnis05.readNext();
+			// Spaltenbeschriftung einlesen und Spalten Parteien zuordnen
+			HashMap<Integer, String> parteienSpalte = new HashMap<Integer, String>();
+			for (int i = 9; i < 73; i = i + 2) {
+				parteienSpalte.put(i, readLineErgebnis05[i]);
 			}
+
+			// temporäre Variablen
+			int stimmzettelnummer = 1;
+			int aktuelleKandidatennummer = 0;
 
 			while ((readLineErgebnis05 = readerErgebnis05.readNext()) != null) {
 
-				// stimme.add(new Stimme(stimmzettelnummer,));
-				// stimmzettelnummer++;
-
-				if (!readLineErgebnis05[0].trim().equals("")) {
+				if (!readLineErgebnis05[0].trim().equals("")
+						&& !readLineErgebnis05[2].trim().equals("")
+						&& !readLineErgebnis05[2].equals("Land")
+						&& !readLineErgebnis05[2].equals("Insgesamt")) {
 					wahlkreis.add(new Wahlkreis(Integer
 							.parseInt(readLineErgebnis05[0]),
 							readLineErgebnis05[2], readLineErgebnis05[1],
 							Integer.parseInt(readLineErgebnis05[3])));
 
+					// for (int i = 9; i < 73; i = i + 2) {
+					int i = 9;
+
+					System.out.println("!!!!!!!!!!" + readLineErgebnis05[1]
+							+ ", " + readLineErgebnis05[i]);
+
+					for (int j = 0; j < Integer.parseInt(readLineErgebnis05[i]); j++) {
+
+						String[] writeLine05 = { "2005",
+								Integer.toString(stimmzettelnummer),
+								Integer.toString(aktuelleKandidatennummer),
+								parteienSpalte.get(i), readLineErgebnis05[1] };
+
+						writerStimmen05.writeNext(writeLine05);
+
+						stimmzettelnummer++;
+					}
+
+					// }
+
 				}
 			}
 
-			// Iterator itr = wahlkreis.iterator();
-			// System.out.println("Set : ");
-			// while (itr.hasNext())
-			// System.out.println(itr.next());
-			// System.out.println("------------");
+			Iterator itr = wahlkreis.iterator();
+			System.out.println("Set : ");
+			while (itr.hasNext())
+				System.out.println(itr.next());
+			System.out.println("------------");
 
 			writerStimmen05.close();
 			readerErgebnis05.close();
@@ -222,6 +269,27 @@ public class BWGenerator {
 				}
 			}
 
+			// Ergebnisse in Tabelle schreiben
+
+			try {
+				conn = DriverManager.getConnection(url);
+				st = conn.createStatement();
+
+				Iterator itr = politiker.iterator();
+				while (itr.hasNext())
+					st.executeUpdate("INSERT INTO \"Politiker\" VALUES (\"2009\",\""
+							+ itr.next() + "\")");
+
+				itr = partei.iterator();
+				while (itr.hasNext())
+					st.executeUpdate("INSERT INTO \"Partei\" VALUES (\"2009\",\""
+							+ itr.next() + "\")");
+				st.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
 			// Iterator itr = partei.iterator();
 			// System.out.println("Set : ");
 			// while (itr.hasNext())
@@ -232,19 +300,10 @@ public class BWGenerator {
 
 			// HashSet<Stimme> stimme = new HashSet<Stimme>();
 
-			int stimmzettelnummer = 1;
-
-			// Einleseparameter
-			int columnWahlkreisNummer = 0; // Spalte der WahlkreisNummer ab 0
-			int columnParteienStart = 9; // Startspalte der Stimmen je Kandidat
-			int columnParteienStop = 22; // Endspalte der Stimmen je Kandidat
-			// writer.writeNext(writeLine);
-
-			// Anfangszeilen überspringen
-			int skipLinesWKUmrechnung = 4; // zu überspringende Zeilen am Anfang
-			for (int i = 1; i <= skipLinesWKUmrechnung; i++) {
-				readerErgebnis09.readNext();
-			}
+			readerErgebnis09.readNext();
+			readerErgebnis09.readNext();
+			readerErgebnis09.readNext();
+			readerErgebnis09.readNext();
 
 			while ((readLineErgebnis09 = readerErgebnis09.readNext()) != null) {
 
@@ -273,53 +332,14 @@ public class BWGenerator {
 			e.printStackTrace();
 		}
 
-		// try {
-		// conn = DriverManager.getConnection(url);
-		// st = conn.createStatement();
-		//
-		// rs =
-		// st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
-		//
-		// while (rs.next()) {
-		//
-		// System.out.println(rs.getString(1));
-		// }
-		//
-		// st.close();
-		//
-		// } catch (SQLException e) {
-		// e.printStackTrace();
-		// }
-		//
-		// System.out.print(" ");
-
-		// try {
-		// BufferedReader br = new BufferedReader(new FileReader(
-		// "csv\\wahlbewerber2009.csv"));
-		//
-		// CSVReader reader = new CSVReader(br, ';');
-		// String[] line;
-		// while ((line = reader.readNext()) != null) {
-		// // System.out.println(line[0] + "  " + line[1] + "  " + line[2]
-		// // + "  " + line[3]);
-		//
-		// }
-		//
-		// } catch (FileNotFoundException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
-		// String line;
-		// while((line = br.readLine()) != null) {
-		// StringTokenizer st = new StringTokenizer(line, ",");
-		// String name = st.nextToken();
-		// String email = st.nextToken();
-		// Integer id = Integer.valueOf(st.nextToken());
-		// }
-
 	}
+
 }
+
+// ---nützlicher Code
+
+// rs =
+// st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
+// while (rs.next()) {
+// System.out.println(rs.getString(1));
+// }

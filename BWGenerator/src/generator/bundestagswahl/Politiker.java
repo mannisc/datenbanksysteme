@@ -11,7 +11,7 @@ public class Politiker {
 	}
 
 	public String toString() {
-		return this.politikernummer + ",  " + name;
+		return this.politikernummer + ", " + name;
 	}
 
 }

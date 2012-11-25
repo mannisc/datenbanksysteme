@@ -16,7 +16,7 @@ public class Wahlkreis {
 	}
 
 	public String toString() {
-		return this.name + ",  " + this.bundesland + ",  "
-				+ this.wahlkreisnummer + ",  " + wahlberechtigte;
+		return this.name + ", " + this.bundesland + ", " + this.wahlkreisnummer
+				+ ", " + wahlberechtigte;
 	}
 }
