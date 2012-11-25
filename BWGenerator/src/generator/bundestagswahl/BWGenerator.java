@@ -1,10 +1,16 @@
 package generator.bundestagswahl;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
+
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class BWGenerator {
 
@@ -23,25 +29,80 @@ public class BWGenerator {
 		String url = "jdbc:postgresql://localhost/Bundestagswahl?user=user&password=1234";
 		Connection conn;
 		Statement st;
+
 		ResultSet rs = null;
+
+		// 2009
+
+		// Stimmen pro Wahlkreis aus wkumrechnung2009.csv auslesen
+		// und in stimmen2099.csv Einzelstimmen schreiben
+
 		try {
-			conn = DriverManager.getConnection(url);
-			st = conn.createStatement();
 
-			rs = st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
+			CSVReader reader = new CSVReader(new BufferedReader(new FileReader(
+					"csv\\wkumrechnung2009.csv")), ';');
 
-			while (rs.next()) {
+			CSVWriter writer = new CSVWriter(new FileWriter(
+					"csv\\stimmen2009.csv"), ';');
 
-				System.out.println(rs.getString(1));
+			String[] readLine;
+			String[] writeLine; // = "first#second#third".split("#");
+
+			// Einleseparameter
+
+			int skipLines = 0; // zu überspringende Zeilen am Anfang
+			int columnWahlkreisNummer = 0; // Spalte der WahlkreisNummer ab 0
+			int columnParteienStart = 9; // Startspalte der Stimmen je Kandidat
+			int columnParteienStop = 22; // Endspalte der Stimmen je Kandidat
+
+			int WahlkreisNummer;
+			String Partei;
+
+			// Anfangszeilen überspringen
+			for (int i = 0; i < skipLines; i++) {
+				reader.readNext();
 			}
 
-			st.close();
+			// writer.writeNext(writeLine);
 
-		} catch (SQLException e) {
+			while ((readLine = reader.readNext()) != null) {
+
+				if (readLine.length >= columnParteienStop)
+					System.out.println(readLine[0] + "  " + readLine[1] + "  "
+							+ readLine[2] + "  " + readLine[3]);
+
+			}
+
+			writer.close();
+			reader.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		System.out.print(" ");
+		// try {
+		// conn = DriverManager.getConnection(url);
+		// st = conn.createStatement();
+		//
+		// rs =
+		// st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
+		//
+		// while (rs.next()) {
+		//
+		// System.out.println(rs.getString(1));
+		// }
+		//
+		// st.close();
+		//
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
+		//
+		// System.out.print(" ");
 
 		// try {
 		// BufferedReader br = new BufferedReader(new FileReader(
