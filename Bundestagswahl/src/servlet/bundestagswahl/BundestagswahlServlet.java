@@ -61,7 +61,46 @@ public class BundestagswahlServlet extends HttpServlet {
 
 			st = conn.createStatement();
 
-			rs = st.executeQuery("SELECT * FROM \"Bundesland\" ORDER BY \"Bundesland\" ASC;");
+			// Stimmenverteilung abfragen--------
+
+			st.executeUpdate("CREATE TABLE SitzeProJahr ( Jahr INTEGER PRIMARY KEY, Sitze INTEGER NOT NULL);");
+
+			st.executeUpdate("INSERT INTO SitzeProJahr VALUES (‘2005’, ‘598’), (‘2009’, ‘598’), (‘2013’, ‘700’);");
+
+			st.executeUpdate("CREATE OR REPLACE TABLE Divisoren ( div SERIAL PRIMARY KEY);");
+
+			st.executeUpdate("ALTER SEQUENCE Divisoren_div_seq RESTART WITH 1 INCREMENT BY 2;");
+
+			st.executeUpdate("CREATE TRIGGER fill_divisoren AFTER INSERT ON Divisoren FOR EACH ROW WHEN ( (SELECT COUNT(*) FROM Divisoren) < (SELECT Sitze FROM SitzeProJahr WHERE Jahr = #JahrInput)) BEGIN INSERT INTO Divisoren VALUES (DEFAULT) END;");
+
+			st.executeUpdate("CREATE OR REPLACE VIEW StimmenProPartei as ( SELECT Partei, COUNT(*) as AnzahlStimmen FROM Stimme WHERE Jahr = #InputJahr AND Partei IS NOT NULL GROUP BY Partei HAVING  COUNT(*) >= (0.05 * (SELECT COUNT(*) FROM Stimme S WHERE s.Jahr = #JahrInput AND s.Partei IS NOT NULL)));");
+
+			// Aggregierte Ergebnisse verwenden
+
+			// CREATE OR REPLACE VIEW StimmenProPartei as (
+			// SELECT Partei, SUM(Quantitaet) as AnzahlStimmen
+			// FROM Zweitstimmen
+			// WHERE Jahr = #InputJahr AND Partei IS NOT NULL
+			// GROUP BY Partei
+			// HAVING SUM(Quantitaet) >= (0.05 * (SELECT SUM(Quantitaet)
+			// FROM Zweitstimme z
+			// WHERE z.Jahr = #JahrInput AND
+			// z.Partei IS NOT NULL)))
+
+			st.executeUpdate("CREATE OR REPLACE TABLE ItrErgebnisse ( Partei STRING,  Anzahl NUMERIC, PRIMARY KEY(Partei, Anzahl));");
+
+			st.executeUpdate("CREATE OR REPLACE TRIGGER berechne_ItrErgebnisse AFTER INSERT ON Divisoren FOR EACH ROW BEGIN INSERT INTO ItrErgebnisse (SELECT Name, AnzahlStimmen / (NEW.div::float8) AS Anzahl FROM StimmenProPartei)END;");
+
+			st.executeUpdate("CREATE OR REPLACE TABLE Divisoren ( div SERIAL PRIMARY KEY);");
+
+			st.executeUpdate("ALTER SEQUENCE Divisoren_div_seq RESTART WITH 1 INCREMENT BY 2;");
+
+			st.executeUpdate("INSERT INTO Divisoren VALUES (DEFAULT);");
+
+			st.executeUpdate("CREATE VIEW Ergebnis AS (WITH T AS (SELECT * FROM ItrErgebnisse ORDER BY Anzahl DESC LIMIT (SELECT Sitze FROM SitzeProJahr WHERE Jahr = #JahrInput));");
+
+			// Abfrage des Endergebnisses
+			rs = st.executeQuery("SELECT Partei, COUNT(*) as AnzahlSitze FROM T GROUP BY Partei);");
 
 			resp.setContentType("text/html");
 			PrintWriter out = resp.getWriter();
@@ -70,7 +109,7 @@ public class BundestagswahlServlet extends HttpServlet {
 
 			while (rs.next()) {
 				out.print("<br>");
-				out.println(rs.getString(1));
+				out.println(rs.getString(1) + " " + rs.getString(2));
 			}
 			out.print("<br><br>");
 			out.println("<a href='/Bundestagswahl/'>zur&uuml;ck</a>");
