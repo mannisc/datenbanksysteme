@@ -2,14 +2,15 @@ package generator.bundestagswahl;
 
 public class Partei {
 	public String name;
+	int parteinummer;
 
 	public Partei(String name) {
 		super();
-		this.name = name;
+		this.name = name.trim();
 	}
 
 	public String toString() {
-		return this.name;
+		return this.parteinummer + ",'" + this.name + "'";
 	}
 
 	@Override
