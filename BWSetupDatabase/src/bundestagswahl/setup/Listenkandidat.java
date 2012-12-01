@@ -1,15 +1,17 @@
-package generator.bundestagswahl;
+package bundestagswahl.setup;
 
 public class Listenkandidat {
 	public int partei;
-
+	public int jahr;
 	public int bundesland;
 	public int politiker;
 	public int listenplatz;
 
-	public Listenkandidat(int partei, int bundesland, int listenplatz,
-			int politiker) {
+	public Listenkandidat(int jahr, int partei, int bundesland,
+			int listenplatz, int politiker) {
 		super();
+		this.jahr = jahr;
+
 		this.partei = partei;
 		this.bundesland = bundesland;
 		this.listenplatz = listenplatz;
@@ -18,7 +20,7 @@ public class Listenkandidat {
 	}
 
 	public String toString() {
-		return this.partei + "," + bundesland + ", " + listenplatz + ",  "
-				+ politiker;
+		return this.jahr + "," + this.partei + "," + bundesland + ", "
+				+ listenplatz + ",  " + politiker;
 	}
 }

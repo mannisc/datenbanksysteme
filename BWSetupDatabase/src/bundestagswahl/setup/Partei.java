@@ -1,4 +1,4 @@
-package generator.bundestagswahl;
+package bundestagswahl.setup;
 
 public class Partei {
 	public String name;
