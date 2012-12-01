@@ -141,16 +141,6 @@ public class BWSetupDatabase {
 					st.executeUpdate("CREATE TABLE listenkandidat(jahr integer, partei integer, bundesland int, listenplatz integer, politiker integer, PRIMARY KEY (jahr,partei,bundesland,listenplatz)) WITH ( OIDS=FALSE );");
 					st.executeUpdate("CREATE TABLE stimme( jahr integer, stimmzettelnummer integer UNIQUE, kandidatennummer integer, partei integer, bundesland integer, PRIMARY KEY (Jahr,stimmzettelnummer))WITH (OIDS=FALSE);");
 
-					st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
-					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
-					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
-					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
-					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
-					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT bundesland FOREIGN KEY (bundesland) REFERENCES bundesland;");
-					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
-					st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
-					st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
-
 					// Tabellen füllen-----------------------------------------
 
 					int bundeslandnummer;

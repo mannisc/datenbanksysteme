@@ -277,6 +277,19 @@ public class BWGenerator {
 									in);
 					fileReader.close();
 					System.out.println("\nCopying finished");
+					System.out.println("\nAdding Constraints");
+
+					st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
+					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
+					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
+					st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
+					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
+					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT bundesland FOREIGN KEY (bundesland) REFERENCES bundesland;");
+					st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
+					st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
+					st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
+
+					System.out.println("\nFinished");
 
 				}
 
