@@ -25,6 +25,12 @@ public class BWSetupDatabase {
 	public static String ergebnis05Pfad = "csv\\StruktBtwkr2005.csv";
 	public static String ergebnis09Pfad = "csv\\StruktBtwkr2009.csv";
 
+	// Anpassungen in den CSV Dateien:
+	// Alle UTF-8 Format
+	// wahlergebniss2009.csv: VIOLETTEN zu DIE VIOLETTEN wie in kerg umbenannt
+	// Volksabst. zu Volksabstimmung wie in kerg umbenannt
+	// Tierschutzpartei -"-
+
 	public static void main(String[] args) {
 		System.out.println("Setup Database started");
 
