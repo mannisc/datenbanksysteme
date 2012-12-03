@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,12 +15,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-
-import javax.swing.ProgressMonitorInputStream;
 
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
@@ -29,6 +25,7 @@ import org.postgresql.core.BaseConnection;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import bundestagswahl.setup.BWSetupDatabase;
+import bundestagswahl.setup.CopyProgressMonitor;
 
 public class BWGenerator {
 
@@ -38,12 +35,14 @@ public class BWGenerator {
 	public static String ergebnis05Pfad = "csv\\kerg2005.csv";
 	public static String ergebnis09Pfad = "csv\\kerg2009.csv";
 
-	public static String stimmen05Pfad = "csv\\stimmen2005.csv";
-	public static String stimmen09Pfad = "csv\\stimmen2009.csv";
+	public static String erststimmen05Pfad = "csv\\erststimmen2005.csv";
+	public static String erststimmen09Pfad = "csv\\erststimmen2009.csv";
+	public static String zweitstimmen05Pfad = "csv\\zweitstimmen2005.csv";
+	public static String zweitstimmen09Pfad = "csv\\zweitstimmen2009.csv";
 
-	public static boolean setupDatabase = true;
-	public static boolean generateStimmen = true;
-	public static boolean loadStimmen = false;
+	public static boolean setupDatabase = true;// Datenbank neu aufsetzen
+	public static boolean generateStimmen = true;// Stimmen CSV neu generieren
+	public static boolean loadStimmen = true;// Stimmen neu in Datenbank laden
 
 	/**
 	 * @param args
@@ -77,7 +76,8 @@ public class BWGenerator {
 				conn = DriverManager.getConnection(url);
 				st = conn.createStatement();
 				CSVReader readerErgebnis[] = new CSVReader[2];
-				CSVWriter writerStimmen[] = new CSVWriter[2];
+				CSVWriter writerErststimmen[] = new CSVWriter[2];
+				CSVWriter writerZweitstimmen[] = new CSVWriter[2];
 
 				if (generateStimmen) {
 					readerErgebnis[0] = new CSVReader(new BufferedReader(
@@ -86,12 +86,20 @@ public class BWGenerator {
 					readerErgebnis[1] = new CSVReader(new BufferedReader(
 							new InputStreamReader(new FileInputStream(
 									ergebnis09Pfad), "UTF-8")), ';');
-					writerStimmen[0] = new CSVWriter(new BufferedWriter(
+
+					writerErststimmen[0] = new CSVWriter(new BufferedWriter(
 							new OutputStreamWriter(new FileOutputStream(
-									stimmen05Pfad), "UTF-8")), ';');
-					writerStimmen[1] = new CSVWriter(new BufferedWriter(
+									erststimmen05Pfad), "UTF-8")), ';');
+					writerErststimmen[1] = new CSVWriter(new BufferedWriter(
 							new OutputStreamWriter(new FileOutputStream(
-									stimmen09Pfad), "UTF-8")), ';');
+									erststimmen09Pfad), "UTF-8")), ';');
+
+					writerZweitstimmen[0] = new CSVWriter(new BufferedWriter(
+							new OutputStreamWriter(new FileOutputStream(
+									zweitstimmen05Pfad), "UTF-8")), ';');
+					writerZweitstimmen[1] = new CSVWriter(new BufferedWriter(
+							new OutputStreamWriter(new FileOutputStream(
+									zweitstimmen09Pfad), "UTF-8")), ';');
 				}
 
 				for (int jahr = 0; jahr < 2; jahr++) {
@@ -118,7 +126,9 @@ public class BWGenerator {
 						}
 
 						// Benötige Variablen
-						int stimmzettelnummer = 1;
+						int erststimmzettelnummer = 1;
+						int zweitstimmzettelnummer = 1;
+
 						int aktuelleKandidatennummer = 0;
 						int aktuelleParteinummer = 0;
 
@@ -152,27 +162,37 @@ public class BWGenerator {
 									String partei = parteienSpalte.get(i);
 
 									int erststimmenAnzahl = 0;
+									int zweitstimmenAnzahl = 0;
+
 									if (!readLineErgebnis[i].equals(""))
 										erststimmenAnzahl = Integer
 												.parseInt(readLineErgebnis[i]);
 
+									if (!readLineErgebnis[i + 2].equals(""))
+										zweitstimmenAnzahl = Integer
+												.parseInt(readLineErgebnis[i + 2]);
+
+									aktuelleParteinummer = Integer
+											.parseInt(getQueryResult(st, rs,
+													"SELECT parteinummer FROM partei WHERE name = '"
+															+ partei + "';"));
+
+									if (zweitstimmenAnzahl > 0) {
+
+										for (int j = 0; j < zweitstimmenAnzahl; j++) {
+											String[] writeLine = {
+													jahrName,
+													Integer.toString(zweitstimmzettelnummer),
+													Integer.toString(aktuelleParteinummer),
+													Integer.toString(aktelleBundeslandnummer) };
+
+											writerZweitstimmen[jahr]
+													.writeNext(writeLine);
+											zweitstimmzettelnummer++;
+										}
+									}
+
 									if (erststimmenAnzahl > 0) {
-										System.out
-												.println("SELECT parteinummer FROM partei WHERE name = '"
-														+ partei + "';");
-										aktuelleParteinummer = Integer
-												.parseInt(getQueryResult(st,
-														rs,
-														"SELECT parteinummer FROM partei WHERE name = '"
-																+ partei + "';"));
-										System.out
-												.println("SELECT kandidatennummer FROM direktkandidat WHERE jahr = "
-														+ jahrName
-														+ " AND wahlkreis = "
-														+ wahlkreisnummer
-														+ " AND partei = "
-														+ aktuelleParteinummer
-														+ ";");
 										aktuelleKandidatennummer = Integer
 												.parseInt(getQueryResult(
 														st,
@@ -188,21 +208,19 @@ public class BWGenerator {
 										for (int j = 0; j < erststimmenAnzahl; j++) {
 											String[] writeLine = {
 													jahrName,
-													Integer.toString(stimmzettelnummer),
-													Integer.toString(aktuelleKandidatennummer),
-													Integer.toString(aktuelleParteinummer),
-													Integer.toString(aktelleBundeslandnummer) };
+													Integer.toString(erststimmzettelnummer),
+													Integer.toString(aktuelleKandidatennummer) };
 
-											writerStimmen[jahr]
+											writerErststimmen[jahr]
 													.writeNext(writeLine);
-											stimmzettelnummer++;
+											erststimmzettelnummer++;
 										}
 									}
 								}
 							}
 						}
 
-						writerStimmen[jahr].close();
+						writerErststimmen[jahr].close();
 						readerErgebnis[jahr].close();
 
 						System.out.println("\nGenerating finished");
@@ -210,87 +228,55 @@ public class BWGenerator {
 
 					SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
 					if (loadStimmen) {
-						System.out.println("\nCopying started: "
-								+ format.format(new Date()));
 
 						// Bulk Load der
-						// Stimmen----------------------------------------
+						// ErstStimmen----------------------------------------
 						CopyManager copyManager = new CopyManager(
 								(BaseConnection) conn);
-						FileReader fileReader = new FileReader(stimmen05Pfad);
-
 						String actPfad;
+						String progressString;
+						String talbeDestination;
+						for (int stimme = 0; stimme < 2; stimme++) {
+							System.out.println("\nCopying started: "
+									+ format.format(new Date()));
 
-						switch (jahr) {
-						case 0:
-							actPfad = stimmen05Pfad;
-							break;
-						default:
-							actPfad = stimmen09Pfad;
-							break;
+							switch (stimme) {
+							case 0:
+								talbeDestination = "erststimme";
+								switch (jahr) {
+								case 0:
+									actPfad = erststimmen05Pfad;
+									progressString = "Erststimmen 2005 laden";
+									break;
+								default:
+									actPfad = erststimmen09Pfad;
+									progressString = "Erststimmen 2009 laden";
+									break;
+								}
+								break;
+							default:
+								talbeDestination = "zweitstimme";
+								switch (jahr) {
+								case 0:
+									actPfad = zweitstimmen05Pfad;
+									progressString = "Zweitstimmen 2005 laden";
+									break;
+								default:
+									actPfad = zweitstimmen09Pfad;
+									progressString = "Zweitstimmen 2009 laden";
+									break;
+								}
+								break;
+							}
+
+							InputStream in = new BufferedInputStream(
+									CopyProgressMonitor.getCopyProgressMonitor(
+											actPfad, progressString));
+							copyManager.copyIn("COPY " + talbeDestination
+									+ " FROM STDIN WITH DELIMITER ';' CSV", in);
+							in.close();
+							System.out.println("\nCopying finished");
 						}
-
-						ProgressMonitorInputStream progressMonitorInputStream = new ProgressMonitorInputStream(
-								null, "Stimmen laden", new FileInputStream(
-										actPfad) {
-
-									private long gelesenByte = 0;
-									private long diffGelesen = 0;
-									private long zuLesen = 0;
-									DecimalFormat fromat = new DecimalFormat(
-											"#0.00");
-
-									public int read() throws IOException {
-										update(1);
-										return super.read();
-									}
-
-									public int read(byte[] b)
-											throws IOException {
-										update(1);
-										return super.read(b);
-									}
-
-									public int read(byte[] b, int off, int len)
-											throws IOException {
-										update(len);
-										return super.read(b, off, len);
-									}
-
-									public void update(int len)
-											throws IOException {
-
-										if (gelesenByte == 0)
-											zuLesen = super.available();
-
-										gelesenByte = gelesenByte + len;
-										diffGelesen = diffGelesen + len;
-										if (diffGelesen > 1024 * 1024) {
-											diffGelesen = 0;
-											System.out.println(gelesenByte
-													/ 1024
-													/ 1024
-													+ "MB von "
-													+ zuLesen
-													/ 1024
-													/ 1024
-													+ " MB - "
-													+ fromat.format((double) gelesenByte
-															/ zuLesen * 100.0)
-													+ "%");
-										}
-									}
-
-								});
-
-						InputStream in = new BufferedInputStream(
-								progressMonitorInputStream);
-
-						copyManager
-								.copyIn("COPY public.stimme FROM STDIN WITH DELIMITER ';' CSV",
-										in);
-						fileReader.close();
-						System.out.println("\nCopying finished");
 						System.out.println("\nAdding Constraints");
 
 						st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");

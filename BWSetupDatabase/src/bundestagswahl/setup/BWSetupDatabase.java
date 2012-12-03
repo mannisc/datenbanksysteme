@@ -94,9 +94,13 @@ public class BWSetupDatabase {
 					// st.executeUpdate("CREATE DATABASE \"Bundestagswahl\" WITH  OWNER = user ENCODING 'UNICODE' TABLESPACE = pg_default;");
 
 					// Tabellen löschen, Reihenfolge relevant---------
-
 					try {
-						st.executeUpdate("DROP TABLE stimme;");
+						st.executeUpdate("DROP TABLE erststimme;");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					try {
+						st.executeUpdate("DROP TABLE zweitstimme;");
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -145,7 +149,8 @@ public class BWSetupDatabase {
 					st.executeUpdate("CREATE TABLE wahlberechtigte(jahr integer, wahlkreis integer UNIQUE,wahlberechtigte integer , PRIMARY KEY (jahr,wahlkreis))WITH (OIDS=FALSE);");
 					st.executeUpdate("CREATE TABLE direktkandidat(jahr integer,kandidatennummer integer UNIQUE, politiker integer, partei int, wahlkreis integer, PRIMARY KEY (jahr,kandidatennummer)) WITH ( OIDS=FALSE );");
 					st.executeUpdate("CREATE TABLE listenkandidat(jahr integer, partei integer, bundesland int, listenplatz integer, politiker integer, PRIMARY KEY (jahr,partei,bundesland,listenplatz)) WITH ( OIDS=FALSE );");
-					st.executeUpdate("CREATE TABLE stimme( jahr integer, stimmzettelnummer integer UNIQUE, kandidatennummer integer, partei integer, bundesland integer, PRIMARY KEY (Jahr,stimmzettelnummer))WITH (OIDS=FALSE);");
+					st.executeUpdate("CREATE TABLE erststimme( jahr integer, stimmzettelnummer integer UNIQUE, kandidatennummer integer, PRIMARY KEY (Jahr,stimmzettelnummer))WITH (OIDS=FALSE);");
+					st.executeUpdate("CREATE TABLE zweitstimme( jahr integer, stimmzettelnummer integer UNIQUE, partei integer, bundesland integer, PRIMARY KEY (Jahr,stimmzettelnummer))WITH (OIDS=FALSE);");
 
 					// Tabellen füllen-----------------------------------------
 
