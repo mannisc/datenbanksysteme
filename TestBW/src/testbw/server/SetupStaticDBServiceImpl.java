@@ -20,8 +20,6 @@ public class SetupStaticDBServiceImpl extends RemoteServiceServlet implements
 			Class.forName("org.postgresql.Driver");
 			conn = DriverManager.getConnection(postgresqlurl);
 			st = conn.createStatement();
-
-			// Siehe: setup_static.sql
 			
 			//-- SitzeProJahr [Mock]
 			//-- Typ: vordefiniert
@@ -100,7 +98,51 @@ public class SetupStaticDBServiceImpl extends RemoteServiceServlet implements
 			//-- Typ: Vorberechnung
 			//-- Verweist auf: divisoren
 			st.executeUpdate("INSERT INTO divisoren VALUES (DEFAULT);");
-
+			
+			
+			//-- Erststimmen [Mock]
+			//-- Typ: wird berechnet (periodisch aus grosser 'Erststimme' Relation) -> Initialisiere mit 0
+			//-- Verweist auf: -
+			st.executeUpdate("DROP TABLE IF EXISTS erststimmen CASCADE;");
+			st.executeUpdate("CREATE TABLE erststimmen ( jahr INTEGER, kandnum INTEGER, wahlkreis INTEGER, " + 
+								"quantitaet INTEGER, CONSTRAINT erststimmen_pkey PRIMARY KEY (jahr, kandnum, wahlkreis));");
+			
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '1', '11', '5');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '2', '11', '3');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '3', '11', '8');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '4', '12', '1');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '5', '12', '20');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '6', '12', '3');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '7', '13', '12');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '8', '13', '5');");
+			st.executeUpdate("INSERT INTO erststimmen VALUES ('2013', '9', '13', '4');");
+			
+			
+			//-- Direktkandidaten [Mock]
+			//-- Typ: vordefiniert
+			//-- Verweist auf: -
+			st.executeUpdate("DROP TABLE IF EXISTS direktkandidaten CASCADE;");
+			st.executeUpdate("CREATE TABLE direktkandidaten( jahr INTEGER, kandnum INTEGER, polnr INTEGER, partei INTEGER, wahlkreis INTEGER, " + 
+							 "CONSTRAINT direktkandidaten_pkey PRIMARY KEY (jahr, kandnum));");
+			
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '1', '1', '21', '11');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '2', '2', '22', '11');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '3', '3', '23', '11');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '4', '4', '21', '12');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '5', '5', '22', '12');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '6', '6', '23', '12');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '7', '7', '21', '13');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '8', '8', '22', '13');");
+			st.executeUpdate("INSERT INTO direktkandidaten VALUES ('2013', '9', '9', '23', '13');");
+			
+			//-- Parteien [Mock]
+			//-- Typ: vordefiniert
+			//-- Verweist auf: -
+			st.executeUpdate("DROP TABLE IF EXISTS parteien CASCADE;");
+			
+			st.executeUpdate("CREATE TABLE parteien ( parteinum INTEGER PRIMARY KEY, name CHARACTER VARYING NOT NULL);");
+			st.executeUpdate("INSERT INTO parteien VALUES ('21', 'X'), ('22', 'Y'), ('23', 'Z');");
+			
 			st.close();
 			
 			return "Setup successful.";

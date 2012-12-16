@@ -21,3 +21,21 @@ h1 {
 .textBox {
 	width: 300px;
 }
+
+.pieChart {
+	width: 900px; 
+	height: 500px;
+	margin: 40px 0px 70px;
+}
+
+.dialogBox {
+	width: 900px; 
+	height: 500px;
+	margin: 40px 0px 70px;
+}
+
+.dialogVPanel {
+	width: 900px; 
+	height: 500px;
+	margin: 40px 0px 70px;
+}

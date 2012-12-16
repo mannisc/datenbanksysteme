@@ -21,5 +21,18 @@
     <servlet-name>SetupStaticDBServiceImpl</servlet-name>
     <url-pattern>/testbw/setupStaticDB</url-pattern>
   </servlet-mapping>
+  
+  
+  
+  
+  <servlet>
+    <servlet-name>AnalysisServiceImpl</servlet-name>
+    <servlet-class>testbw.server.AnalysisServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>AnalysisServiceImpl</servlet-name>
+    <url-pattern>/testbw/analysis</url-pattern>
+  </servlet-mapping>
 
 </web-app>
