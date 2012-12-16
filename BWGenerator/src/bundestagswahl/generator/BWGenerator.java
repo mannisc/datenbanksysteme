@@ -40,10 +40,10 @@ public class BWGenerator {
 	public static String zweitstimmen05Pfad = "csv\\zweitstimmen2005.csv";
 	public static String zweitstimmen09Pfad = "csv\\zweitstimmen2009.csv";
 
-	public static boolean setupDatabase = true;// Datenbank neu aufsetzen
+	public static boolean setupDatabase = false;// Datenbank neu aufsetzen
 	public static boolean generateStimmen = false;// Stimmen CSV neu generieren
-	public static boolean loadStimmen = true;// Stimmen neu in Datenbank laden
-	public static boolean addConstraints = true;// Constraints hinzufügen
+	public static boolean loadStimmen = false;// Stimmen neu in Datenbank laden
+	public static boolean addConstraints = false;// Constraints hinzufügen
 
 	/**
 	 * @param args
@@ -283,21 +283,81 @@ public class BWGenerator {
 					if (addConstraints) {
 						System.out.println("\nAdding Constraints");
 
-						st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
-						st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
-						st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
-						st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
-						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
-						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT bundesland FOREIGN KEY (bundesland) REFERENCES bundesland;");
-						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
-						st.executeUpdate("ALTER TABLE erststimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
-						st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
-						st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT partei FOREIGN  KEY (partei) REFERENCES partei;");
-
+						try {
+							st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE direktkandidat  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT bundesland FOREIGN KEY (bundesland) REFERENCES bundesland;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE erststimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT partei FOREIGN  KEY (partei) REFERENCES partei;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE erststimmen  ADD CONSTRAINT kandidatennummer FOREIGN  KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						try {
+							st.executeUpdate("ALTER TABLE zweitstimmen  ADD CONSTRAINT partei FOREIGN  KEY (partei) REFERENCES partei;");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
 						System.out.println("\nFinished");
 					}
 
 				}
+
+				// Stimmen aggregieren
+				System.out.println("\n Aggregate Stimmen");
+
+				try {
+					st.executeUpdate("INSERT INTO zweitstimmen SELECT jahr, partei, count(*) FROM zweitstimme GROUP BY partei,jahr;");
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				System.out.println("\nFinished");
 
 				st.close();
 				conn.close();
