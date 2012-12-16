@@ -41,8 +41,9 @@ public class BWGenerator {
 	public static String zweitstimmen09Pfad = "csv\\zweitstimmen2009.csv";
 
 	public static boolean setupDatabase = true;// Datenbank neu aufsetzen
-	public static boolean generateStimmen = true;// Stimmen CSV neu generieren
+	public static boolean generateStimmen = false;// Stimmen CSV neu generieren
 	public static boolean loadStimmen = true;// Stimmen neu in Datenbank laden
+	public static boolean addConstraints = true;// Constraints hinzufügen
 
 	/**
 	 * @param args
@@ -219,6 +220,7 @@ public class BWGenerator {
 								}
 							}
 						}
+						writerZweitstimmen[jahr].close();
 
 						writerErststimmen[jahr].close();
 						readerErgebnis[jahr].close();
@@ -274,9 +276,11 @@ public class BWGenerator {
 											actPfad, progressString));
 							copyManager.copyIn("COPY " + talbeDestination
 									+ " FROM STDIN WITH DELIMITER ';' CSV", in);
-							in.close();
+
 							System.out.println("\nCopying finished");
 						}
+					}
+					if (addConstraints) {
 						System.out.println("\nAdding Constraints");
 
 						st.executeUpdate("ALTER TABLE wahlberechtigte  ADD CONSTRAINT wahlkreis FOREIGN KEY (jahr,wahlkreis) REFERENCES wahlkreis(jahr,wahlkreisnummer);");
@@ -286,8 +290,9 @@ public class BWGenerator {
 						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT partei FOREIGN KEY (partei) REFERENCES partei;");
 						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT bundesland FOREIGN KEY (bundesland) REFERENCES bundesland;");
 						st.executeUpdate("ALTER TABLE listenkandidat  ADD CONSTRAINT politiker FOREIGN KEY (politiker) REFERENCES politiker;");
-						st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
-						st.executeUpdate("ALTER TABLE stimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
+						st.executeUpdate("ALTER TABLE erststimme  ADD CONSTRAINT kandidatennummer FOREIGN KEY (kandidatennummer) REFERENCES direktkandidat(kandidatennummer);");
+						st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT bundesland FOREIGN  KEY (bundesland) REFERENCES bundesland;");
+						st.executeUpdate("ALTER TABLE zweitstimme  ADD CONSTRAINT partei FOREIGN  KEY (partei) REFERENCES partei;");
 
 						System.out.println("\nFinished");
 					}
