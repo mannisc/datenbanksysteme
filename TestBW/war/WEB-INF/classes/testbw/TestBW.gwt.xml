@@ -8,7 +8,6 @@
 <module rename-to='testbw'>
   <!-- Inherit the core Web Toolkit stuff.                        -->
   <inherits name='com.google.gwt.user.User'/>
-  
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->
@@ -19,8 +18,7 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
-  <inherits name="com.googlecode.gwt.charts.Charts"/>
-  
+
   <!-- Specify the app entry point class.                         -->
   <entry-point class='testbw.client.TestBW'/>
 
